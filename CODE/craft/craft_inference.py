@@ -1,4 +1,3 @@
-import os
 import time
 from collections import OrderedDict
 
@@ -8,8 +7,8 @@ import torch
 import torch.backends.cudnn as cudnn
 from torch.autograd import Variable
 
-from CODE.craft import imgproc, craft_utils, file_utils
-from CODE.craft.craft import CRAFT
+from craft import imgproc, craft_utils
+from craft.craft import CRAFT
 
 
 trained_model = 'craft/weights/craft_mlt_25k.pth'
