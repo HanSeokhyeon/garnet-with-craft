@@ -1,3 +1,43 @@
+# GaRNet with CRAFT
+
+GaRNet의 입력으로는 이미지와 텍스트의 위치를 탐지한 box들이 필요하다. 그러나 기존 GaRNet repo에는 box를 탐지하는 로직이 없어서 Naver의 CRAFT 모델을 이용하여 추출하는 로직을 추가하였다.
+
+## Getting started
+
+### CRAFT 모델 다운로드
+
+https://github.com/clovaai/CRAFT-pytorch
+
+1. 위 repository에 존재하는 모델 다운로드 받는 링크를 통해 모델을 다운로드 받는다.
+2. `CODE/craft/weights/`에 모델 파일을 위치시킨다. ex) `CODE/craft/weights/craft_mlt_25k.pth`
+
+### GaRNet 모델 다운로드
+
+https://github.com/naver/garnet
+
+1. 기존 repository 참고해 모델을 다운로드 받는다.
+2. `WEIGHTS/GaRNet/`에 모델 파일을 위치시킨다. ex) `WEIGHTS/GaRNet/saved_model.pth`
+
+### RUN
+
+```bash
+cd CODE/
+python inference.py
+```
+
+### 결과 확인
+`CODE/result/` 경로 확인해보면 box와 함께 저장된 이미지와 text inpainting이 완료된 이미지를 확인할 수 있다.
+
+![grid_img_302.jpg](CODE%2Fresult%2Fgrid_img_302.jpg)
+![img_302.jpg](CODE%2Fresult%2Fimg_302.jpg)
+
+### 추가 이미지
+`DATA/EXAMPLE/IMG/` 경로에 jpg 확장자로 이미지를 추가하면 다른 이미지도 테스트가 가능하다.
+
+ex) `DATA/EXAMPLE/IMG/my_img.jpg`
+
+---
+
 # The Surprisingly Straightforward Scene Text Removal Method With Gated Attention and Region of Interest Generation: A Comprehensive Prominent Model Analysis
 
 > The Surprisingly Straightforward Scene Text Removal Method With Gated Attention and Region of Interest Generation: A Comprehensive Prominent Model Analysis | [Paper and Supplementary](https://www.ecva.net/papers/eccv_2022/papers_ECCV/html/4705_ECCV_2022_paper.php) \

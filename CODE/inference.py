@@ -12,7 +12,9 @@ import torch
 import torchvision
 import numpy as np
 import cv2
+from PIL import Image
 
+from craft.craft_inference import add_box_by_craft
 from model import GaRNet
 
 
@@ -79,10 +81,17 @@ def test(args, net):
 
     image_list = glob.glob(os.path.join(args.image_path, "*.jpg"))
     box_list = glob.glob(os.path.join(args.box_path, "*.txt"))
+    image_filename_list = [path.split("/")[-1].split(".")[0] for path in image_list]
+    box_filename_list = [path.split("/")[-1].split(".")[0] for path in box_list]
+    target_image_list = [filepath for filepath, filename in zip(image_list, image_filename_list) if filename not in box_filename_list]
+    add_box_by_craft(target_image_list, args.gpu)
+    box_list = glob.glob(os.path.join(args.box_path, "*.txt"))
     image_list.sort()
     box_list.sort()
     count = 0
     for batch_idx, (im_path, box_path) in enumerate(zip(image_list, box_list)):
+        # save image with box
+        save_image_with_box(box_path, im_path)
 
         # prepare input
         im = cv2.imread(im_path, cv2.IMREAD_COLOR)
@@ -109,7 +118,7 @@ def test(args, net):
         result = (1 - box_mask) * im + box_mask * result.cpu()
         img = (torch.clamp(result[0] + 1, 0, 2) * 127.5).cpu().detach().numpy().transpose(1, 2, 0).astype(np.uint8)
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-        img = cv2.resize(img, (H, W))
+        img = cv2.resize(img, (W, H))
         cv2.imwrite(os.path.join(args.result_path, name), img)
 
         if args.attention_vis:
@@ -144,6 +153,18 @@ def test(args, net):
         if count >= 800:
             break
     print("complete")
+
+
+def save_image_with_box(box_path, im_path):
+    im_box = cv2.imread(im_path, cv2.IMREAD_COLOR)
+    im_box = cv2.cvtColor(im_box, cv2.COLOR_BGR2RGB)
+    boxs = np.loadtxt(box_path, dtype=np.int32, delimiter=",")
+    for box in boxs:
+        pos = list(map(int, box))
+        points = np.array([[pos[0], pos[1]], [pos[2], pos[3]], [pos[4], pos[5]], [pos[6], pos[7]]], np.int32)
+        cv2.polylines(im_box, [points], isClosed=True, color=(0, 255, 0), thickness=2)
+    im_box = Image.fromarray(im_box)
+    im_box.save(f'result/grid_{im_path.split("/")[-1]}')
 
 
 def attention_visualize(result, att, input_size):
